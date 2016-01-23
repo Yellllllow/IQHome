@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">IQHome</string>
     <string name="action_settings">Settings</string>
+
+    <string name="lblLed1">Led 1</string>
+    <string name="lblLed2">Led 2</string>
+
+    <string name="btnActivateVoiceControl">Activate voice control</string>
 </resources>
