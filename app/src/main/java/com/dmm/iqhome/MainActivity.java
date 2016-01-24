@@ -12,19 +12,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+    public static String TAG = "IQHOMETag";
 
     Button btnActivateVoiceControl;
+    Button btnSelectDB;
     TextView tvStatus;
 
     private static final int SPEECH_REQUEST_CODE = 0;
 
-    private Speech2CommandTranslator speech2CommandTranslator = new Speech2CommandTranslator();
+    private CommandManager commandManager = new CommandManager();
+    private Speech2CommandTranslator speech2CommandTranslator = new Speech2CommandTranslator(commandManager);
+    private MessageSender messageSender = new MessageSender();
+
 
 
     @Override
@@ -45,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
         btnActivateVoiceControl = (Button)findViewById(R.id.btnActivateVoiceControl);
         btnActivateVoiceControl.setOnClickListener(btnActivateVoiceControlListener);
+
+        btnSelectDB = (Button)findViewById(R.id.btnSelectDB);
+        btnSelectDB.setOnClickListener(btnSelectDBListener);
 
         tvStatus = (TextView)findViewById(R.id.tvStatus);
     }
@@ -83,6 +92,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    View.OnClickListener btnSelectDBListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            List<Device> devices = commandManager.DeviceList;
+            new MessageReceiver(getApplicationContext()).execute(devices.toArray(new Device[devices.size()]));
+        }
+    };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
@@ -93,12 +110,16 @@ public class MainActivity extends AppCompatActivity {
 
             List<Device> devices = speech2CommandTranslator.GetDevicesForSpeech(spokenText);
 
-            String s = "no devices";
-            if(devices != null) {
-                s = "";
+
+            String s = "";
+            if(devices.isEmpty()){
+                Toast.makeText(getApplicationContext(),"Command '" + spokenText + "' not recognized!",Toast.LENGTH_SHORT).show();
+            }else{
+
                 for (Device dev : devices) {
                     s+= dev.Name + " " + dev.Value + " \n";
                 }
+                messageSender.propagateMessagesToDevices(devices);
             }
 
             tvStatus.setText(s);
