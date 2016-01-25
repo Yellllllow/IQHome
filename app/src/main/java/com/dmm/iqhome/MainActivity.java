@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CommandManager commandManager = new CommandManager();
     private Speech2CommandTranslator speech2CommandTranslator = new Speech2CommandTranslator(commandManager);
-    private MessageSender messageSender = new MessageSender();
+    private StatusUpdater messageSender = new StatusUpdater();
 
 
 
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             List<Device> devices = commandManager.DeviceList;
-            new MessageReceiver(getApplicationContext()).execute(devices.toArray(new Device[devices.size()]));
+            new StatusProvider(getApplicationContext()).execute(devices.toArray(new Device[devices.size()]));
         }
     };
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 for (Device dev : devices) {
                     s+= dev.Name + " " + dev.Value + " \n";
                 }
-                messageSender.propagateMessagesToDevices(devices);
+                messageSender.updateDevices(devices);
             }
 
             tvStatus.setText(s);
