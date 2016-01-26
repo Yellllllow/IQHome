@@ -13,7 +13,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,14 +32,24 @@ IQ_H_VALUE
  */
 public class StatusUpdater extends AsyncTask<Device, Void, String> {
     private Context context;
+    private IReturnValueFromStatusUpdater returnValueFromStatusUpdater;
 
-    public StatusUpdater(Context context) {
+    public StatusUpdater(Context context, IReturnValueFromStatusUpdater ret) {
         this.context = context;
+        this.returnValueFromStatusUpdater = ret;
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        returnValueFromStatusUpdater.GetValueReturnedByStatusUpdater(s);
+        super.onPostExecute(s);
     }
 
     @Override
     protected String doInBackground(Device... params) {
         String ret = "NO_PARAMS";
+
+
 
         List<NameValuePair> parameters = new ArrayList<>();
         String paramString = "";
@@ -78,6 +87,38 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
                 Toast.makeText(context, "Invalid IP Address", Toast.LENGTH_LONG).show();
             }
 
+
+            try {
+                String line;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+                while ((line = reader.readLine()) != null) {
+                    if(line.contains("FAIL")){
+                        return "FAIL";
+                    }
+                }
+                is.close();
+                Log.e(MainActivity.TAG, "connection success ");
+            } catch (Exception e) {
+                Log.e(MainActivity.TAG, e.toString());
+            }
+
+        }
+        return "OK";
+    }
+}
+/*
+            List<Device> listOfUpdatedDevices = new ArrayList<>();
+            for (String singleResult : resultList) {
+                try {
+                    JSONObject json_data = new JSONObject(singleResult);
+                    Log.d(MainActivity.TAG, "Parsing JSON \n");
+                   // listOfUpdatedDevices.add(new Device(json_data.getString("IQ_H_DEVICE"), json_data.getString("IQ_H_VALUE")));
+                } catch (Exception e) {
+                    Log.d(MainActivity.TAG, "Parsing JSON \n" + e.getMessage());
+                }
+            }
+
+/*
             String line;
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
@@ -107,7 +148,3 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
             } catch (Exception e) {
                 Log.e("Fail 3", e.toString());
             }*/
-        }
-        return ret;
-    }
-}

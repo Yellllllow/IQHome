@@ -7,31 +7,42 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+interface IReturnValueFromStatusUpdater{
+    void GetValueReturnedByStatusUpdater(String s);
+}
+
+interface IReturnValueFromStatusProvider {
+    void GetValueReturnedByStatusUpdater(List<Device> devices);
+}
+
+public class MainActivity extends AppCompatActivity implements IReturnValueFromStatusUpdater, IReturnValueFromStatusProvider {
+
+
     public static String TAG = "IQHOMETag";
 
     Button btnActivateVoiceControl;
     Button btnSelectDB;
     TextView tvStatus;
+    ToggleButton tbLED1;
+    ToggleButton tbLED2;
 
     private static final int SPEECH_REQUEST_CODE = 0;
 
     private CommandManager commandManager = new CommandManager();
     private Speech2CommandTranslator speech2CommandTranslator = new Speech2CommandTranslator(commandManager);
-    private StatusUpdater messageSender = new StatusUpdater();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         btnSelectDB.setOnClickListener(btnSelectDBListener);
 
         tvStatus = (TextView)findViewById(R.id.tvStatus);
+
+        tbLED1 = (ToggleButton)findViewById(R.id.tbLed1);
+        tbLED2 = (ToggleButton)findViewById(R.id.tbLed2);
     }
 
     @Override
@@ -96,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             List<Device> devices = commandManager.DeviceList;
-            new StatusProvider(getApplicationContext()).execute(devices.toArray(new Device[devices.size()]));
+            new StatusProvider(getApplicationContext(),MainActivity.this).execute(devices.toArray(new Device[devices.size()]));
         }
     };
 
@@ -119,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 for (Device dev : devices) {
                     s+= dev.Name + " " + dev.Value + " \n";
                 }
-                messageSender.updateDevices(devices);
+                new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
             }
 
             tvStatus.setText(s);
@@ -129,6 +143,35 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    //interfaces
+    public void GetValueReturnedByStatusUpdater(String s){
+        String msg;
+        switch(s){
+            case "OK":
+                msg = "Devices updated successfully";
+                break;
+            case "NO_PARAMS":
+                msg = "No devices passed to updater";
+                break;
+            case "FAIL":
+                msg = "Unable to update devices";
+                break;
+            default:
+                msg = "Other problem";
+                break;
+        }
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
+    }
 
-
+    @Override
+    public void GetValueReturnedByStatusUpdater(List<Device> devices) {
+        Log.d(TAG, "dddd");
+        for(Device dev : devices){
+            if(dev.Name.equals("LED1")){
+                tbLED1.setChecked(dev.Value.equals("Y"));
+            }else if(dev.Name.equals("LED2")){
+                tbLED2.setChecked(dev.Value.equals("Y"));
+            }
+        }
+    }
 }

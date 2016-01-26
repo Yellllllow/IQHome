@@ -16,14 +16,14 @@ public class CommandManager {
     public CommandManager() {
         //LED 1
         Device led1 = new Device("LED1");
-        List<String> voiceCommandsEnable1 = Arrays.asList("włącz pierwszą", "włącz lewą", "włącz jeden", "włącz 1", "włącz pierwszy", "bądź pierwszy");
-        List<String> voiceCommandsDisable1 = Arrays.asList("wyłącz pierwszą", "wyłącz lewą", "wyłącz jeden", "wyłącz 1", "wyłącz pierwszy", "bądź pierwszy");
+        List<String> voiceCommandsEnable1 = Arrays.asList("włącz pierwszą", "włącz lewą", "włącz jeden", "włącz 1", "włącz pierwszy", "bądź pierwszy", "włącz lewy");
+        List<String> voiceCommandsDisable1 = Arrays.asList("wyłącz pierwszą", "wyłącz lewą", "wyłącz jeden", "wyłącz 1", "wyłącz pierwszy", "bądź pierwszy", "wyłącz lewy");
         DeviceList.add(led1);
 
         //LED 2
         Device led2 = new Device("LED2");
-        List<String> voiceCommandsEnable2 = Arrays.asList("włącz drugą", "włącz prawą", "włącz dwa", "włącz 2", "włącz drugi");
-        List<String> voiceCommandsDisable2 = Arrays.asList("wyłącz drugą", "wyłącz prawą", "wyłącz drugą", "wyłącz 2", "wyłącz drugi");
+        List<String> voiceCommandsEnable2 = Arrays.asList("włącz drugą", "włącz prawą", "włącz dwa", "włącz 2", "włącz drugi", "włącz prawy");
+        List<String> voiceCommandsDisable2 = Arrays.asList("wyłącz drugą", "wyłącz prawą", "wyłącz drugą", "wyłącz 2", "wyłącz drugi","wyłącz prawy");
         DeviceList.add(led2);
 
 

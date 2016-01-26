@@ -26,10 +26,18 @@ import java.util.List;
  */
 public class StatusProvider extends AsyncTask<Device, Void, List<Device>> {
     Context context;
+    private IReturnValueFromStatusProvider returnValueFromStatusProvider;
 
 
-    public StatusProvider(Context context) {
+    public StatusProvider(Context context, IReturnValueFromStatusProvider ret) {
         this.context = context;
+        this.returnValueFromStatusProvider = ret;
+    }
+
+    @Override
+    protected void onPostExecute(List<Device> devices) {
+        returnValueFromStatusProvider.GetValueReturnedByStatusUpdater(devices);
+        super.onPostExecute(devices);
     }
 
     @Override
@@ -38,11 +46,11 @@ public class StatusProvider extends AsyncTask<Device, Void, List<Device>> {
 
         List<NameValuePair> parameters = new ArrayList<>();
         String paramString = "";
-        if(params != null) {
-            for(Device par : params){
-                if(paramString.isEmpty()){
+        if (params != null) {
+            for (Device par : params) {
+                if (paramString.isEmpty()) {
                     paramString = par.Name;
-                }else{
+                } else {
                     paramString = par.Name + "," + paramString;
                 }
 
@@ -51,51 +59,44 @@ public class StatusProvider extends AsyncTask<Device, Void, List<Device>> {
         }
 
         InputStream is = null;
-        try
-        {
+        try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost("http://arduino.890m.com/select.php");
-            if(!parameters.isEmpty()) {
+            if (!parameters.isEmpty()) {
                 httppost.setEntity(new UrlEncodedFormEntity(parameters));
             }
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
             Log.e(MainActivity.TAG, "connection success ");
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             Log.e(MainActivity.TAG, e.toString());
             Toast.makeText(context, "Invalid IP Address", Toast.LENGTH_LONG).show();
         }
 
 
         List<String> resultList = new ArrayList<>();
-        try
-        {
+        try {
             String line;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is,"iso-8859-1"),8);
-            while ((line = reader.readLine()) != null)
-            {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+            while ((line = reader.readLine()) != null) {
                 resultList.add(line);
             }
             is.close();
             Log.e(MainActivity.TAG, "connection success ");
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             Log.e(MainActivity.TAG, e.toString());
         }
 
 
-            for(String singleResult : resultList) {
-                try {
-                    JSONObject json_data = new JSONObject(singleResult);
-                    ret.add(new Device(json_data.getString("IQ_H_DEVICE"), json_data.getString("IQ_H_VALUE")));
-                }catch(Exception e){
-                    Log.d(MainActivity.TAG, "Parsing JSON \n" + e.getMessage());
-                }
+        for (String singleResult : resultList) {
+            try {
+                JSONObject json_data = new JSONObject(singleResult);
+                ret.add(new Device(json_data.getString("IQ_H_DEVICE"), json_data.getString("IQ_H_VALUE")));
+            } catch (Exception e) {
+                Log.d(MainActivity.TAG, "Parsing JSON \n" + e.getMessage());
             }
+        }
 
         return ret;
 
