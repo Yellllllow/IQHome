@@ -1,5 +1,6 @@
 package com.dmm.iqhome;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -7,7 +8,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +17,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -25,11 +26,10 @@ interface IReturnValueFromStatusUpdater{
 }
 
 interface IReturnValueFromStatusProvider {
-    void GetValueReturnedByStatusUpdater(List<Device> devices);
+    void GetValueReturnedByStatusProvider(List<Device> devices);
 }
 
 public class MainActivity extends AppCompatActivity implements IReturnValueFromStatusUpdater, IReturnValueFromStatusProvider {
-
 
     public static String TAG = "IQHOMETag";
 
@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     TextView tvStatus;
     ToggleButton tbLED1;
     ToggleButton tbLED2;
+
+    private ProgressDialog progressDialog;
 
     private static final int SPEECH_REQUEST_CODE = 0;
 
@@ -70,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
 
         tbLED1 = (ToggleButton)findViewById(R.id.tbLed1);
         tbLED2 = (ToggleButton)findViewById(R.id.tbLed2);
+
+        btnSelectDB.performClick();
     }
 
     @Override
@@ -110,6 +114,10 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
         @Override
         public void onClick(View v) {
             List<Device> devices = commandManager.DeviceList;
+            if(progressDialog != null){
+                progressDialog.dismiss();
+            }
+            progressDialog = ProgressDialog.show(MainActivity.this, "Getting data...", "Please wait...");
             new StatusProvider(getApplicationContext(),MainActivity.this).execute(devices.toArray(new Device[devices.size()]));
         }
     };
@@ -133,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
                 for (Device dev : devices) {
                     s+= dev.Name + " " + dev.Value + " \n";
                 }
-                new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
+                updateDevices(devices);
+                //new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
             }
 
             tvStatus.setText(s);
@@ -143,8 +152,18 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    private void updateDevices(List<Device> devices){
+        if(devices != null){
+            progressDialog = ProgressDialog.show(MainActivity.this, "Updating devices...", "Please wait...");
+            new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
+        }
+    }
     //interfaces
     public void GetValueReturnedByStatusUpdater(String s){
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
         String msg;
         switch(s){
             case "OK":
@@ -164,14 +183,34 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     }
 
     @Override
-    public void GetValueReturnedByStatusUpdater(List<Device> devices) {
-        Log.d(TAG, "dddd");
+    public void GetValueReturnedByStatusProvider(List<Device> devices) {
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
         for(Device dev : devices){
             if(dev.Name.equals("LED1")){
                 tbLED1.setChecked(dev.Value.equals("Y"));
             }else if(dev.Name.equals("LED2")){
                 tbLED2.setChecked(dev.Value.equals("Y"));
             }
+        }
+    }
+
+    public void onClickToggleButton(View v){
+        String newState = ((ToggleButton)v).isChecked() ? "Y" : "N";
+        Device device = null;
+        switch(v.getId()){
+            case R.id.tbLed1:
+                device = new Device("LED1", newState);
+                break;
+            case R.id.tbLed2:
+                device = new Device("LED2", newState);
+                break;
+            default:
+                break;
+        }
+        if(device != null){
+            updateDevices(Arrays.asList(device));
         }
     }
 }

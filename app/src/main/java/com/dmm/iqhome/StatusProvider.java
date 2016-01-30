@@ -28,15 +28,20 @@ public class StatusProvider extends AsyncTask<Device, Void, List<Device>> {
     Context context;
     private IReturnValueFromStatusProvider returnValueFromStatusProvider;
 
-
     public StatusProvider(Context context, IReturnValueFromStatusProvider ret) {
         this.context = context;
         this.returnValueFromStatusProvider = ret;
     }
 
     @Override
+    protected void onPreExecute() {
+
+        super.onPreExecute();
+    }
+
+    @Override
     protected void onPostExecute(List<Device> devices) {
-        returnValueFromStatusProvider.GetValueReturnedByStatusUpdater(devices);
+        returnValueFromStatusProvider.GetValueReturnedByStatusProvider(devices);
         super.onPostExecute(devices);
     }
 

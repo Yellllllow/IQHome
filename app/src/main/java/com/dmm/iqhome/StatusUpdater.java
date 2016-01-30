@@ -49,8 +49,6 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
     protected String doInBackground(Device... params) {
         String ret = "NO_PARAMS";
 
-
-
         List<NameValuePair> parameters = new ArrayList<>();
         String paramString = "";
         String valueString = "";
@@ -92,6 +90,7 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
                 String line;
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
                 while ((line = reader.readLine()) != null) {
+                    Log.i(MainActivity.TAG, line);
                     if(line.contains("FAIL")){
                         return "FAIL";
                     }

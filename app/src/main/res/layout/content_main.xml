@@ -39,7 +39,8 @@
                 android:id="@+id/tbLed1"
                 android:layout_gravity="center"
                 android:layout_column="1"
-                android:layout_row="0" />
+                android:layout_row="0"
+                android:onClick="onClickToggleButton"/>
 
             <TextView
                 android:textStyle="bold"
@@ -52,7 +53,8 @@
                 android:id="@+id/tbLed2"
                 android:layout_gravity="center"
                 android:layout_column="1"
-                android:layout_row="1" />
+                android:layout_row="1"
+                android:onClick="onClickToggleButton"/>
 
         </GridLayout>
 
@@ -77,12 +79,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/highlighted_text_material_light"
-        android:text="Status" />
+        android:text="DB buttons" />
 
-    <TextView
-        android:id="@+id/tvStatus"
+    <Button
+        android:id="@+id/btnSelectDB"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Check state of all devices..."/>
 
     <TextView
         android:textStyle="bold"
@@ -90,13 +93,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/highlighted_text_material_light"
-        android:text="DB buttons" />
+        android:text="Status" />
 
-    <Button
-        android:id="@+id/btnSelectDB"
+    <TextView
+        android:id="@+id/tvStatus"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Make a DB select for all devices"/>
+        android:layout_height="wrap_content" />
+
+
 
 
 </LinearLayout>
