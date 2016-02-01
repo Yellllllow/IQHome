@@ -17,6 +17,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
+import com.dmm.iqhome.com.dmm.iqhome.fragments.Settings;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -92,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, Settings.class);
+            startActivity(i);
             return true;
         }
 
