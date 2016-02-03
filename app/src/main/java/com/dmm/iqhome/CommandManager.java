@@ -11,7 +11,7 @@ public class CommandManager {
     public List<Command> EnableCommandList = new ArrayList<>();
     public List<Command> DisableCommandList = new ArrayList<>();
     public List<Device> DeviceList = new ArrayList<>();
-
+    public static final String DEVICE_LIST = "Device_list";
 
     public CommandManager() {
         //LED 1

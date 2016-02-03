@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/ivImage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/tvText"
+        android:layout_width="0dp"
+        android:textColor="@color/secondary_text_default_material_light"
+        android:textSize="@dimen/abc_text_size_subtitle_material_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"/>
+
+</LinearLayout>

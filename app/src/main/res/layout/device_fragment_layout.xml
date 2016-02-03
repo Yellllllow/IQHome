@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:background="@color/accent_material_light"
+        android:textColor="@color/switch_thumb_material_dark"
+        android:text="List of all devices (no matter if active or not)"/>
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_weight="10"
+        android:layout_height="0dp">
+
+    </ListView>
+    
+    <Button
+        android:id="@+id/btnAddDevice"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:textAlignment="center"
+        android:text="Add a device..."/>
+</LinearLayout>

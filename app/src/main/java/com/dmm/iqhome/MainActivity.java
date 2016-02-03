@@ -19,6 +19,7 @@ import android.widget.ToggleButton;
 
 import com.dmm.iqhome.com.dmm.iqhome.fragments.Settings;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, Settings.class);
+            i.putExtra(CommandManager.DEVICE_LIST, (Serializable)commandManager.DeviceList);
             startActivity(i);
             return true;
         }
@@ -163,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
             new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
         }
     }
+
+
     //interfaces
     public void GetValueReturnedByStatusUpdater(String s){
         if(progressDialog != null){
@@ -191,7 +195,17 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
         if(progressDialog != null){
             progressDialog.dismiss();
         }
-        for(Device dev : devices){
+
+        //update devices based on the values provided from the DB
+        for(Device updated_device : devices){
+            for(Device current_device : commandManager.DeviceList){
+                if(updated_device.Name.equals(current_device.Name)){
+                    current_device.Value = updated_device.Value;
+                }
+            }
+        }
+
+        for(Device dev : commandManager.DeviceList){
             if(dev.Name.equals("LED1")){
                 tbLED1.setChecked(dev.Value.equals("Y"));
             }else if(dev.Name.equals("LED2")){

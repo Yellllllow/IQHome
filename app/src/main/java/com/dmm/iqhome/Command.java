@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by waldekd on 1/23/16.
  */
-public class Command {
+public class Command  {
     List<String> VoiceCommandsList = new ArrayList<>();
     List<Device> DevicesList = new ArrayList<>();
 
