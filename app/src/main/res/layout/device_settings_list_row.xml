@@ -16,6 +16,34 @@
         android:textColor="@color/secondary_text_default_material_light"
         android:textSize="@dimen/abc_text_size_subtitle_material_toolbar"
         android:layout_height="wrap_content"
-        android:layout_weight="4"/>
+        android:layout_weight="8"/>
+
+
+
+    <ImageButton
+        android:id="@+id/ibSpeaker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/switch_thumb_normal_material_light"
+        android:layout_weight="1"
+        android:src="@mipmap/record" />
+
+    <ImageButton
+        android:id="@+id/ibListen"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/switch_thumb_normal_material_light"
+        android:layout_weight="1"
+        android:src="@mipmap/listen" />
+
+    <ImageButton
+        android:id="@+id/ibRemove"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/switch_thumb_normal_material_light"
+        android:layout_weight="1"
+        android:src="@mipmap/remove" />
+
+
 
 </LinearLayout>

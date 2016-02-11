@@ -38,4 +38,8 @@ public class CommandManager {
         DisableCommandList.add(dis1command);
         DisableCommandList.add(dis2command);
     }
+
+    public void setDeviceList(List<Device> list){
+        DeviceList = list;
+    }
 }

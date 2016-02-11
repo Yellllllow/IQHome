@@ -1,10 +1,12 @@
 package com.dmm.iqhome.com.dmm.iqhome.adapters;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,6 +30,7 @@ public class DeviceSettingsAdapter extends ArrayAdapter<Device> {
         this.res = resource;
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -38,8 +41,9 @@ public class DeviceSettingsAdapter extends ArrayAdapter<Device> {
         Device d = deviceList.get(position);
         textView.setText(d.Name);
 
+        makeAdditionalChanges(rowView);
 
-        if (d.Value.equals("Y")) {
+        if (d.isActive()) {
             imageView.setImageResource(R.mipmap.device_settings);
         } else {
             imageView.setImageResource(R.mipmap.device_settings_bw);
@@ -47,5 +51,10 @@ public class DeviceSettingsAdapter extends ArrayAdapter<Device> {
 
         return rowView;
     }
+
+    protected void makeAdditionalChanges(View v){
+    }
+
+
 }
 

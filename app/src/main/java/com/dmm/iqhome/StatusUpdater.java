@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dmm.iqhome.com.dmm.iqhome.interfaces.IReturnValueFromStatusUpdater;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -25,6 +27,9 @@ IQ_HARDWARE
 -----------
 IQ_H_DEVICE
 IQ_H_VALUE
+IQ_H_ACTIVE
+IQ_H_VOICE_COMMAND_ENABLE
+IQ_H_VOICE_COMMAND_DISABLE
 */
 
 /**
@@ -50,23 +55,35 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
         String ret = "NO_PARAMS";
 
         List<NameValuePair> parameters = new ArrayList<>();
-        String paramString = "";
-        String valueString = "";
+        String nameString = "";
+        String enableString = "";
+        String activeString = "";
+        String voiceEnableString = "";
+        String voiceDisableString = "";
 
         if(params != null){
             for(Device par : params){
-                if(par.Name != null && !par.Name.isEmpty() && par.Value != null && !par.Value.isEmpty()) {
-                    if (paramString.isEmpty()) {
-                        paramString = par.Name;
-                        valueString = par.Value;
+                if(!par.isEmpty()){
+                    if (nameString.isEmpty()) {
+                        nameString = par.Name;
+                        enableString = par.Value;
+                        activeString = par.Active;
+                        voiceEnableString = par.VoiceEnable;
+                        voiceDisableString = par.VoiceDisable;
                     } else {
-                        paramString = par.Name + "," + paramString;
-                        valueString = par.Value + "," + valueString;
+                        nameString = par.Name + "," + nameString;
+                        enableString = par.Value + "," + enableString;
+                        activeString = par.Active + "," + activeString;
+                        voiceEnableString = par.VoiceEnable + "," + voiceEnableString;
+                        voiceDisableString = par.VoiceDisable + "," + voiceDisableString;
                     }
                 }
             }
-            parameters.add(new BasicNameValuePair("devices", paramString));
-            parameters.add(new BasicNameValuePair("values", valueString));
+            parameters.add(new BasicNameValuePair("name", nameString));
+            parameters.add(new BasicNameValuePair("enable", enableString));
+            parameters.add(new BasicNameValuePair("active", activeString));
+            parameters.add(new BasicNameValuePair("voice_enable", voiceEnableString));
+            parameters.add(new BasicNameValuePair("voice_disable", voiceDisableString));
         }
 
         if(!parameters.isEmpty()) {
@@ -101,6 +118,8 @@ public class StatusUpdater extends AsyncTask<Device, Void, String> {
                 Log.e(MainActivity.TAG, e.toString());
             }
 
+        }else{
+            return ret;
         }
         return "OK";
     }

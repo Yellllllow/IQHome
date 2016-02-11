@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menuDevicesEnableDevice"
+        android:title="Enable device" />
+    <item
+        android:id="@+id/menuDevicesDisableDevice"
+        android:title="Disable device" />
+
+    <item
+        android:id="@+id/menuDeviceDeleteDevice"
+        android:title="Delete device" />
+
+    <item
+        android:id="@+id/menuDeviceAddVoiceCommand"
+        android:title="Add voice command" />
+
+    <item
+        android:id="@+id/menuDeviceDeleteVoiceCommand"
+        android:title="Delete voice command" />
+</menu>

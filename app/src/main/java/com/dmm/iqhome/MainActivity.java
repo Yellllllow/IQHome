@@ -1,36 +1,33 @@
 package com.dmm.iqhome;
 
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-
+import com.dmm.iqhome.com.dmm.iqhome.fragments.DevicesMainFragment;
 import com.dmm.iqhome.com.dmm.iqhome.fragments.Settings;
+import com.dmm.iqhome.com.dmm.iqhome.interfaces.IReturnValueFromStatusProvider;
+import com.dmm.iqhome.com.dmm.iqhome.interfaces.IReturnValueFromStatusUpdater;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
-
-
-interface IReturnValueFromStatusUpdater{
-    void GetValueReturnedByStatusUpdater(String s);
-}
-
-interface IReturnValueFromStatusProvider {
-    void GetValueReturnedByStatusProvider(List<Device> devices);
-}
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements IReturnValueFromStatusUpdater, IReturnValueFromStatusProvider {
 
@@ -39,10 +36,13 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     Button btnActivateVoiceControl;
     Button btnSelectDB;
     TextView tvStatus;
-    ToggleButton tbLED1;
-    ToggleButton tbLED2;
+
+    boolean isDeviceFragmentAdded = false;
+//    ToggleButton tbLED1;
+//    ToggleButton tbLED2;
 
     private ProgressDialog progressDialog;
+    private DevicesMainFragment devicesMainFragment = new DevicesMainFragment();
 
     private static final int SPEECH_REQUEST_CODE = 0;
 
@@ -52,7 +52,24 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(!isNetworkAvailable()){
+            Toast.makeText(getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
+
+        btnSelectDB = (Button) findViewById(R.id.btnSelectDB);
+        btnSelectDB.setOnClickListener(btnSelectDBListener);
+        btnSelectDB.performClick();
+
+        if (findViewById(R.id.frDevicesMain) != null) {
+            if (savedInstanceState != null) {
+                return;
+            }
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -65,18 +82,17 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
             }
         });
 
-        btnActivateVoiceControl = (Button)findViewById(R.id.btnActivateVoiceControl);
+        btnActivateVoiceControl = (Button) findViewById(R.id.btnActivateVoiceControl);
         btnActivateVoiceControl.setOnClickListener(btnActivateVoiceControlListener);
 
-        btnSelectDB = (Button)findViewById(R.id.btnSelectDB);
-        btnSelectDB.setOnClickListener(btnSelectDBListener);
+        tvStatus = (TextView) findViewById(R.id.tvStatus);
+    }
 
-        tvStatus = (TextView)findViewById(R.id.tvStatus);
-
-        tbLED1 = (ToggleButton)findViewById(R.id.tbLed1);
-        tbLED2 = (ToggleButton)findViewById(R.id.tbLed2);
-
-        btnSelectDB.performClick();
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override
@@ -96,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent i = new Intent(this, Settings.class);
-            i.putExtra(CommandManager.DEVICE_LIST, (Serializable)commandManager.DeviceList);
+            i.putExtra(CommandManager.DEVICE_LIST, (Serializable) getDeviceList());
             startActivity(i);
             return true;
         }
@@ -105,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     }
 
     //listeners
-    View.OnClickListener btnActivateVoiceControlListener = new View.OnClickListener(){
+    View.OnClickListener btnActivateVoiceControlListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -119,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     View.OnClickListener btnSelectDBListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            List<Device> devices = commandManager.DeviceList;
-            if(progressDialog != null){
+            List<Device> devices = getDeviceList();
+            if (progressDialog != null) {
                 progressDialog.dismiss();
             }
             progressDialog = ProgressDialog.show(MainActivity.this, "Getting data...", "Please wait...");
-            new StatusProvider(getApplicationContext(),MainActivity.this).execute(devices.toArray(new Device[devices.size()]));
+            new StatusProvider(getApplicationContext(), MainActivity.this).execute(devices.toArray(new Device[devices.size()]));
         }
     };
 
@@ -135,17 +151,15 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
             List<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
 
-
             List<Device> devices = speech2CommandTranslator.GetDevicesForSpeech(spokenText);
 
-
             String s = "";
-            if(devices.isEmpty()){
-                Toast.makeText(getApplicationContext(),"Command '" + spokenText + "' not recognized!",Toast.LENGTH_SHORT).show();
-            }else{
+            if (devices.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Command '" + spokenText + "' not recognized!", Toast.LENGTH_SHORT).show();
+            } else {
 
                 for (Device dev : devices) {
-                    s+= dev.Name + " " + dev.Value + " \n";
+                    s += dev.Name + " " + dev.Value + " \n";
                 }
                 updateDevices(devices);
                 //new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
@@ -159,21 +173,32 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
     }
 
 
-    private void updateDevices(List<Device> devices){
-        if(devices != null){
+    public void updateDevices(List<Device> devices) {
+        if (devices != null) {
             progressDialog = ProgressDialog.show(MainActivity.this, "Updating devices...", "Please wait...");
             new StatusUpdater(getApplicationContext(), this).execute(devices.toArray(new Device[devices.size()]));
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        btnSelectDB.performClick();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //btnSelectDB.performClick();
+    }
 
     //interfaces
-    public void GetValueReturnedByStatusUpdater(String s){
-        if(progressDialog != null){
+    public void GetValueReturnedByStatusUpdater(String s) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
         String msg;
-        switch(s){
+        switch (s) {
             case "OK":
                 msg = "Devices updated successfully";
                 break;
@@ -187,48 +212,35 @@ public class MainActivity extends AppCompatActivity implements IReturnValueFromS
                 msg = "Other problem";
                 break;
         }
-        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void GetValueReturnedByStatusProvider(List<Device> devices) {
-        if(progressDialog != null){
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
 
-        //update devices based on the values provided from the DB
-        for(Device updated_device : devices){
-            for(Device current_device : commandManager.DeviceList){
-                if(updated_device.Name.equals(current_device.Name)){
-                    current_device.Value = updated_device.Value;
-                }
-            }
-        }
+        setDeviceList(devices);
 
-        for(Device dev : commandManager.DeviceList){
-            if(dev.Name.equals("LED1")){
-                tbLED1.setChecked(dev.Value.equals("Y"));
-            }else if(dev.Name.equals("LED2")){
-                tbLED2.setChecked(dev.Value.equals("Y"));
-            }
+        if (!isDeviceFragmentAdded && !isFinishing() && findViewById(R.id.frDevicesMain) != null && getFragmentManager().findFragmentByTag("FR_TAG") == null) {
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frDevicesMain, devicesMainFragment, "FR_TAG" );
+            fragmentTransaction.commitAllowingStateLoss();
+            isDeviceFragmentAdded = true;
+        }else{
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.detach(devicesMainFragment);
+            fragmentTransaction.attach(devicesMainFragment);
+            fragmentTransaction.commitAllowingStateLoss();
         }
     }
 
-    public void onClickToggleButton(View v){
-        String newState = ((ToggleButton)v).isChecked() ? "Y" : "N";
-        Device device = null;
-        switch(v.getId()){
-            case R.id.tbLed1:
-                device = new Device("LED1", newState);
-                break;
-            case R.id.tbLed2:
-                device = new Device("LED2", newState);
-                break;
-            default:
-                break;
-        }
-        if(device != null){
-            updateDevices(Arrays.asList(device));
-        }
+    public List<Device> getDeviceList(){
+        return commandManager.DeviceList;
+    }
+
+    public void setDeviceList(List<Device> list){
+        commandManager.setDeviceList(list);
     }
 }

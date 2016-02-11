@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dmm.iqhome.com.dmm.iqhome.interfaces.IReturnValueFromStatusProvider;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -97,7 +99,7 @@ public class StatusProvider extends AsyncTask<Device, Void, List<Device>> {
         for (String singleResult : resultList) {
             try {
                 JSONObject json_data = new JSONObject(singleResult);
-                ret.add(new Device(json_data.getString("IQ_H_DEVICE"), json_data.getString("IQ_H_VALUE")));
+                ret.add(new Device(json_data.getString("IQ_H_DEVICE"), json_data.getString("IQ_H_VALUE"), json_data.getString("IQ_H_ACTIVE"), json_data.getString("IQ_H_VOICE_COMMAND_ENABLE"),json_data.getString("IQ_H_VOICE_COMMAND_DISABLE")));
             } catch (Exception e) {
                 Log.d(MainActivity.TAG, "Parsing JSON \n" + e.getMessage());
             }
