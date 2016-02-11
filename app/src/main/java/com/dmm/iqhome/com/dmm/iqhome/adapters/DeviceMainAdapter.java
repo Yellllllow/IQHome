@@ -3,6 +3,7 @@ package com.dmm.iqhome.com.dmm.iqhome.adapters;
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TableLayout;
 
 import com.dmm.iqhome.Device;
 import com.dmm.iqhome.R;
@@ -29,12 +30,15 @@ public class DeviceMainAdapter extends DeviceSettingsAdapter {
     }
 
 
-    private final int[] IMAGE_BUTTONS_TO_HIDE = {R.id.ibSpeaker, R.id.ibRemove, R.id.ibSpeaker};
+    private final int[] IMAGE_BUTTONS_TO_HIDE = {R.id.ibSpeakerEnable, R.id.ibRemoveEnable, R.id.ibSpeakerEnable};
     @Override
     protected void makeAdditionalChanges(View v) {
+        TableLayout tl = (TableLayout)v.findViewById(R.id.tlSettingsTableLayout);
+        tl.setVisibility(View.GONE);
+        /*
         for(int i : IMAGE_BUTTONS_TO_HIDE){
-            ImageButton imageButton = (ImageButton)v.findViewById(R.id.ibSpeaker);
+            ImageButton imageButton = (ImageButton)v.findViewById(i);
             imageButton.setVisibility(View.GONE);
-        }
+        }*/
     }
 }
